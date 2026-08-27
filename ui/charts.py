@@ -68,6 +68,8 @@ def mostrar_grafico_torta(df_combustibles):
         color_discrete_sequence=px.colors.sequential.YlOrRd[::-1] # Paleta de colores fuego/alerta
     )
     
+    fig.update_traces(textposition='outside', textinfo='percent+label')
+
     fig.update_layout(margin=dict(t=20, b=20, l=0, r=0))
     
     st.plotly_chart(fig, use_container_width=True)

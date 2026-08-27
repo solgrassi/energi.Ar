@@ -6,16 +6,17 @@ from ui.charts import mostrar_grafico_caudales, mostrar_grafico_emisiones, mostr
 def aplicar_estilos():
     st.markdown("""
     <style>
-    /* 1. Importar tipografía moderna de Google Fonts */
+    /*tipografía de Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
 
-    /* 2. Forzar la tipografía en toda la app */
-    html, body, [class*="css"] {
+    /* Forzar la tipografía en toda la app */
+    html, body, .stApp, .stMarkdown, p, h1, h2, h3, h4, li, a {
         font-family: 'Poppins', sans-serif !important;
     }
 
-    /* 3. Estilo de Botones Modernos (Tipo "Pill") */
+    /* Estilo de Botones */
     div.stButton > button {
+        font-family: 'Poppins', sans-serif !important; 
         border-radius: 25px !important;
         font-weight: 600 !important;
         min-height: 50px !important;
@@ -37,7 +38,7 @@ def aplicar_estilos():
         background-color: #d1d5db !important;
     }
 
-    /* 4. Títulos del Hero */
+    /* Títulos del Hero */
     .hero-title {
         text-align: center; 
         font-size: 3.8rem; 
@@ -62,6 +63,25 @@ def aplicar_estilos():
         margin: 0 auto 2rem auto;
         color: #374151;
     }
+    .stat-card {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .stat-card .stat-number {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #111827;
+        display: block;
+    }
+    .stat-card .stat-label {
+        font-size: 0.95rem;
+        color: #4b5563;
+        font-weight: 400;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -72,12 +92,16 @@ def avanzar():
 def retroceder():
     st.session_state.paso -= 1
 
+def mostrar_progreso(paso_actual, total=5):
+    st.progress(paso_actual / (total - 1))
+    st.caption(f"Paso {paso_actual + 1} de {total}")
+
 # --- VISTAS ---
 def vista_introduccion():
     aplicar_estilos()
-    
+    mostrar_progreso(0)
     st.markdown("<h1 class='hero-title'>⚡ energi.Ar</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 class='hero-subtitle'>La paradoja climática de nuestra matriz energética</h3>", unsafe_allow_html=True)
+    st.markdown("<h2 class='hero-subtitle'>La paradoja climática de nuestra matriz energética</h2>", unsafe_allow_html=True)
     
     st.markdown("""
     <div class='intro-text'>
@@ -92,7 +116,7 @@ def vista_introduccion():
     with col2:
         st.error("⚠️ **¿Qué pasa cuando no llueve?**\n\nAl secarse nuestras represas, debemos tomar decisiones drásticas para evitar cortes de luz masivos; medidas que impactan directamente en el medio ambiente.")
         
-    st.write("<br><br>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 2.5rem;'></div>", unsafe_allow_html=True)
     
     _, col_btn, _ = st.columns([1, 2, 1])
     with col_btn:
@@ -100,16 +124,33 @@ def vista_introduccion():
 
 def vista_mapa(df_centrales):
     aplicar_estilos()
-    st.title("1. La red de generación eléctrica")
-    st.markdown("### ¿De dónde sale nuestra energía hoy?")
+    df_centrales.loc[df_centrales['nombre'].str.contains('URUGUA', na=False, case=False), 'nombre'] = 'URUGUA-Í'
+    st.title("1. La red de emergencia fósil")
+    st.markdown("### ¿Quién nos salva cuando falla el clima?")
     
     st.write("""
-    Antes de entender el problema, miremos la infraestructura. 
-    En este mapa oficial podés explorar todas las centrales de generación eléctrica del país. 
-    Vas a notar que las grandes represas hidroeléctricas están concentradas en cuencas específicas, como la del Litoral o la del Comahue.
+    Antes de analizar la crisis, miremos nuestra infraestructura de respaldo. 
+    En este mapa oficial podés ver la enorme red de **centrales térmicas** (los puntos rojos) distribuidas a lo largo y ancho del país. 
+    
+    Estas instalaciones, que generan electricidad quemando gas y fueloil, son el histórico "Plan B" de nuestra matriz energética. Usualmente funcionan para complementar los picos de demanda pero... **¿qué pasa cuando nuestra fuente limpia principal desaparece y este ejército fósil tiene que encenderse a máxima capacidad?**
     """)
     
     mostrar_mapa_centrales(df_centrales)
+
+    with st.expander("📋 Ver listado de centrales en formato tabla (alternativa accesible)"):
+        # Seleccion de las columnas útiles
+        df_tabla = df_centrales[['nombre', 'tecnologia_etiqueta', 'provincia']].copy()
+        
+        df_tabla = df_tabla.rename(columns={
+            'nombre': 'Nombre de la Central',
+            'tecnologia_etiqueta': 'Tecnología',
+            'provincia': 'Provincia'
+        })
+        df_tabla = df_tabla.sort_values(by='Nombre de la Central')
+        df_tabla = df_tabla.reset_index(drop=True)
+        df_tabla.index = df_tabla.index + 1
+        
+        st.dataframe(df_tabla, use_container_width=True)
     
     st.write("") 
     col1, col2 = st.columns([1, 1])
@@ -120,6 +161,7 @@ def vista_mapa(df_centrales):
 
 def vista_graficos(df_caudales):
     aplicar_estilos()
+    mostrar_progreso(2)
     st.title("2. Cuando el agua no alcanza")
     st.markdown("### El desplome histórico de nuestros ríos")
     
@@ -134,6 +176,7 @@ def vista_graficos(df_caudales):
 
 def vista_emisiones(df_emisiones):
     aplicar_estilos()
+    mostrar_progreso(3)
     st.title("3. El costo ambiental")
     st.markdown("### El caso crítico de 2022")
     
@@ -154,6 +197,7 @@ def vista_emisiones(df_emisiones):
 
 def vista_conclusion(df_lluvias, df_combustibles):
     aplicar_estilos()
+    mostrar_progreso(4)
     st.title("4. El círculo vicioso... y cómo romperlo")
     st.markdown("### Resumen del impacto en nuestra matriz")
     
@@ -165,15 +209,27 @@ def vista_conclusion(df_lluvias, df_combustibles):
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.error("📉 1. Causa Climática")
-        st.write(f"Las precipitaciones nacionales cayeron a **{lluvia_2022:.0f} mm** (**-{caida_lluvia:.1f}%**).")
+        st.markdown(f"""
+        <div class='stat-card'>
+            <span class='stat-number'>-{caida_lluvia:.1f}%</span>
+            <span class='stat-label'>📉 Las precipitaciones nacionales cayeron a {lluvia_2022:.0f} mm</span>
+        </div>
+        """, unsafe_allow_html=True)
     with col2:
-        st.warning("💧 2. Caída de Recursos")
-        st.write("El Río Paraná y otros afluentes clave para las represas hidroeléctricas registraron sus caudales más bajos en 50 años.")
+        st.markdown("""
+        <div class='stat-card'>
+            <span class='stat-number'>-Caudales</span>
+            <span class='stat-label'>💧 El Paraná y otros afluentes clave registraron sus caudales más bajos en 50 años</span>
+        </div>
+        """, unsafe_allow_html=True)
     with col3:
-        st.error("🏭 3. Costo Ambiental")
-        st.write("Se emitieron **9.6 millones de toneladas de CO2** para evitar apagones masivos.")
-        
+        st.markdown("""
+        <div class='stat-card'>
+            <span class='stat-number'>9.6M</span>
+            <span class='stat-label'>🏭 Toneladas de CO2 emitidas para evitar apagones masivos</span>
+        </div>
+        """, unsafe_allow_html=True)
+
     st.markdown("---")
     
     col_grafico, col_texto = st.columns([1, 1], gap="large")
@@ -181,13 +237,13 @@ def vista_conclusion(df_lluvias, df_combustibles):
         mostrar_grafico_torta(df_combustibles)
     with col_texto:
         st.markdown("### El futuro es la diversificación")
-        st.write("""
-        La crisis hídrica de 2022 nos dejó una lección ineludible: depender de un solo factor climático para generar energía limpia es un riesgo sistémico. El gráfico refleja cómo, ante la emergencia, el sistema se sostuvo a base de Gas Oil y Gas Natural, disparando nuestra huella de carbono.
-        
-        **Para no repetir esta historia, la transición energética debe acelerarse.** 
-        No alcanza con esperar que vuelva a llover. El verdadero camino es invertir fuertemente en el aprovechamiento integral de nuestro territorio: potenciar los parques eólicos en la Patagonia, expandir la matriz solar en el norte argentino y, fundamentalmente, modernizar la red de transmisión nacional. 
-        
-        El desafío ya no es solo apagar las centrales térmicas, sino construir una infraestructura inteligente, resiliente y diversificada que no dependa del cielo para mantener nuestras luces encendidas.
+        st.write("La crisis hídrica de 2022 nos dejó una lección clara: depender de un solo factor climático para generar energía limpia es un riesgo sistémico.")
+        st.markdown("""
+        Para no repetir esta historia, la transición energética debe acelerarse. No alcanza con esperar que vuelva a llover. El verdadero camino es invertir fuertemente en el aprovechamiento integral de nuestro territorio: 
+        - 🌬️ **Potenciar** los parques eólicos en la Patagonia
+        - ☀️ **Expandir** la matriz solar en el norte argentino
+        - 🔌 **Modernizar** la red de transmisión nacional
         """)
+        st.write("El desafío ya no es solo apagar las térmicas, sino construir una infraestructura resiliente que no dependa del cielo.")
         st.write("")
         st.button("🔄 Volver a explorar los datos", on_click=lambda: st.session_state.update(paso=0), type="primary", use_container_width=True)
