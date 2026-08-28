@@ -1,9 +1,21 @@
 import streamlit as st
 from ui.maps import mostrar_mapa_centrales
 from ui.charts import mostrar_grafico_caudales, mostrar_grafico_emisiones, mostrar_grafico_torta
+import streamlit.components.v1 as components
 
 # --- CSS Y ESTÉTICA GLOBAL ---
 def aplicar_estilos():
+    js_scroll = '''
+    <script>
+        var body = window.parent.document.querySelector(".main");
+        if (body) {
+            body.scrollTop = 0;
+        }
+        window.parent.scrollTo(0, 0);
+    </script>
+    '''
+    components.html(js_scroll, height=0)
+    
     st.markdown("""
     <style>
     /*tipografía de Google Fonts */
@@ -209,10 +221,12 @@ def vista_conclusion(df_lluvias, df_combustibles):
     
     col1, col2, col3 = st.columns(3)
     with col1:
+        caida_formateada = f"{caida_lluvia:.1f}".replace(".", ",")
+        lluvia_formateada = f"{lluvia_2022:,.0f}".replace(",", ".")
         st.markdown(f"""
         <div class='stat-card'>
-            <span class='stat-number'>-{caida_lluvia:.1f}%</span>
-            <span class='stat-label'>📉 Las precipitaciones nacionales cayeron a {lluvia_2022:.0f} mm</span>
+            <span class='stat-number'>-{caida_formateada}%</span>
+            <span class='stat-label'>📉 Las precipitaciones nacionales cayeron a {lluvia_formateada} mm</span>
         </div>
         """, unsafe_allow_html=True)
     with col2:
