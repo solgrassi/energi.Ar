@@ -30,7 +30,7 @@ def mostrar_grafico_caudales(df_caudales):
         
         if ultimo_caudal < promedio_historico:
             caida = ((promedio_historico - ultimo_caudal) / promedio_historico) * 100
-            st.error(f"⚠️ **Impacto:** En el año {ultimo_anio}, el río {rio_seleccionado} registró un caudal de **{ultimo_caudal:,.0f} m³/s**. Esto representa un desplome del **{caida:.1f}%** respecto a su promedio histórico.")
+            st.error(f"⚠️ **Impacto:** En el año {ultimo_anio}, el río {rio_seleccionado} registró un caudal de **{f'{ultimo_caudal:,.0f}'.replace(',', '.')} m³/s**. Esto representa un desplome del **{caida:.1f}%** respecto a su promedio histórico.")
         else:
             st.success(f"💧 En el año {ultimo_anio}, el río {rio_seleccionado} se mantuvo estable o por encima de su promedio histórico.")
 
