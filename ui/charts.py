@@ -50,7 +50,7 @@ def mostrar_grafico_emisiones(df_emisiones):
     # calculo dinamico
     total_anual = df_emisiones['Emisiones_Totales_tCO2'].sum()
     
-    st.warning(f"**Impacto ambiental:** Durante 2022, las centrales térmicas emitieron un volumen acumulado de **{total_anual:,.0f} toneladas de CO2** a la atmósfera.")
+    st.warning(f"**Impacto ambiental:** Durante 2022, las centrales térmicas emitieron un volumen acumulado de **{f'{total_anual:,.0f}'.replace(',', '.')} toneladas de CO2** a la atmósfera.")
     st.info("**¿Qué significa este número en la realidad?**\n\nEsta cantidad de contaminación equivale a las emisiones generadas por **más de 2.100.000 autos** circulando ininterrumpidamente durante todo un año.")
 
 def mostrar_grafico_torta(df_combustibles):

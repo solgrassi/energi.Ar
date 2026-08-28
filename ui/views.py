@@ -5,14 +5,23 @@ import streamlit.components.v1 as components
 
 # --- CSS Y ESTÉTICA GLOBAL ---
 def aplicar_estilos():
-    js_scroll = '''
+    js_scroll = f'''
     <script>
-        var body = window.parent.document.querySelector(".main");
-        if (body) {
-            body.scrollTop = 0;
-        }
-        window.parent.scrollTo(0, 0);
+        setTimeout(function() {{
+            var doc = window.parent.document;
+            var contenedores = [
+                doc.querySelector('section.main'),
+                doc.querySelector('[data-testid="stAppViewContainer"]'),
+                doc.querySelector('[data-testid="stMain"]'),
+                doc.querySelector('.main')
+            ];
+            contenedores.forEach(function(c) {{
+                if (c) {{ c.scrollTop = 0; c.scrollTo(0, 0); }}
+            }});
+            window.parent.scrollTo(0, 0);
+        }}, 50);
     </script>
+    <!-- paso:{st.session_state.paso} -->
     '''
     components.html(js_scroll, height=0)
     
